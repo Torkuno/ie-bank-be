@@ -9,7 +9,7 @@ def hello_world():
 @app.route('/skull', methods=['GET'])
 def skull():
     text = 'Hi! This is the BACKEND SKULL! 💀 '
-    
+
     text = text +'<br/>Database URL:' + db.engine.url.database
     if db.engine.url.host:
         text = text +'<br/>Database host:' + db.engine.url.host
@@ -26,7 +26,8 @@ def skull():
 def create_account():
     name = request.json['name']
     currency = request.json['currency']
-    account = Account(name, currency)
+    country = request.json['country']
+    account = Account(name, currency, country)
     db.session.add(account)
     db.session.commit()
     return format_account(account)
@@ -59,6 +60,7 @@ def format_account(account):
     return {
         'id': account.id,
         'name': account.name,
+        'country': account.country,
         'account_number': account.account_number,
         'balance': account.balance,
         'currency': account.currency,
