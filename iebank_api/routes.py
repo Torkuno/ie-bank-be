@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, request
 from iebank_api import db, app
 from iebank_api.models import Account
 
@@ -22,67 +22,49 @@ def skull():
     return text
 
 
-@app.route("/accounts", methods=["POST"])
+@app.route('/accounts', methods=['POST'])
 def create_account():
-    name = request.json.get("name")
-    currency = request.json.get("currency")
-    country = request.json.get("country")
-
-    if not name:
-        return jsonify({"error": "Name cannot be empty."}), 400
-    if not currency:
-        return jsonify({"error": "Currency cannot be empty or None."}), 400
-    if not country:
-        return jsonify({"error": "Country cannot be empty."}), 400
-
+    name = request.json['name']
+    currency = request.json['currency']
+    country = request.json['country']
     account = Account(name, currency, country)
-
     db.session.add(account)
     db.session.commit()
-    return jsonify(format_account(account)), 201
+    return format_account(account)
 
-
-@app.route("/accounts", methods=["GET"])
+@app.route('/accounts', methods=['GET'])
 def get_accounts():
     accounts = Account.query.all()
-    return jsonify({"accounts": [format_account(account) for account in accounts]}), 200
+    return {'accounts': [format_account(account) for account in accounts]}
 
-
-@app.route("/accounts/<int:id>", methods=["GET"])
+@app.route('/accounts/<int:id>', methods=['GET'])
 def get_account(id):
     account = Account.query.get(id)
-    return jsonify(format_account(account)), 200
+    return format_account(account)
 
-
-@app.route("/accounts/<int:id>", methods=["PUT"])
+@app.route('/accounts/<int:id>', methods=['PUT'])
 def update_account(id):
     account = Account.query.get(id)
-    name = request.json.get("name")
-    if not name:
-        return jsonify({"error": "Name cannot be empty"}), 400
-    account.name = name
+    account.name = request.json['name']
+    account.country = request.json['country']
     db.session.commit()
-    return jsonify(format_account(account)), 200
+    return format_account(account)
 
-
-@app.route("/accounts/<int:id>", methods=["DELETE"])
+@app.route('/accounts/<int:id>', methods=['DELETE'])
 def delete_account(id):
     account = Account.query.get(id)
-    if not account:
-        return jsonify({"error": "Account cannot be empty"}), 400
     db.session.delete(account)
     db.session.commit()
-    return jsonify(format_account(account)), 200
-
+    return format_account(account)
 
 def format_account(account):
     return {
-        "id": account.id,
-        "name": account.name,
-        "account_number": account.account_number,
-        "balance": account.balance,
-        "currency": account.currency,
-        "status": account.status,
-        "country": account.country,
-        "created_at": account.created_at,
+        'id': account.id,
+        'name': account.name,
+        'country': account.country,
+        'account_number': account.account_number,
+        'balance': account.balance,
+        'currency': account.currency,
+        'status': account.status,
+        'created_at': account.created_at
     }
