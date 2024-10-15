@@ -22,12 +22,13 @@ else:
     print("Running in production mode")
     app.config.from_object('config.ProductionConfig')
 
+CORS(app)
+
 db = SQLAlchemy(app)
 
 from iebank_api.models import Account
 
 with app.app_context():
     db.create_all()
-CORS(app)
 
 from iebank_api import routes
